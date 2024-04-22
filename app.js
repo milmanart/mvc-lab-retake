@@ -1,22 +1,20 @@
 const http = require('http');
-const { getCars, getCarInformation, getCarAge } = require('./cars');
-const { getHTMLDocumentStart, getHTMLDocumentEnd } = require('./htmlGenerator');
+const routes = require('./routes');
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-    const cars = getCars();
-    console.log(cars);
-    res.setHeader('Content-Type', 'text/html');
-    res.write(getHTMLDocumentStart());
-    res.write('<body>');
-    for (let car of cars) {
-        res.write(`<p>${getCarInformation(car.id)}</p>`);
-        res.write(`<p>${getCarAge(car.id)}</p>`);
+    const { url, method } = req;
+    if (url === '/' && method === 'GET') {
+        return routes.handleHome(res);
     }
-    res.write('</body>');
-    res.write(getHTMLDocumentEnd());
-    res.end();
+    if (url === '/add-car') {
+        return routes.handleAddCar(method, req, res);
+    }
+    if (url === '/car' && method === 'GET') {
+        return routes.handleCar(res);
+    }
+    return routes.handlePageNotFound(res);
 });
 
 server.listen(PORT, () => {
